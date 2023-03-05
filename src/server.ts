@@ -9,6 +9,8 @@ import validateEnv from '@utils/validateEnv';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new PostsRoute(), new CommentsRoute(), new UserFollowsRoute()]);
-
-app.listen();
+new App().init().then(app => {
+  const routes = [new IndexRoute(), new UsersRoute(), new AuthRoute(), new PostsRoute(), new CommentsRoute(), new UserFollowsRoute()];
+  app.initializeRoutes(routes);
+  app.listen();
+});

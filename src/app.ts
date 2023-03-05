@@ -20,16 +20,17 @@ class App {
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[]) {
+  async init() {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
-    this.env !== 'test' && this.connectToDatabase();
+    this.env !== 'test' && (await this.connectToDatabase());
     this.initializeMiddlewares();
-    this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
+
+    return this;
   }
 
   public listen() {
@@ -45,8 +46,8 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
-    createConnection(dbConnection);
+  private async connectToDatabase() {
+    await createConnection(dbConnection);
   }
 
   private initializeMiddlewares() {
@@ -60,7 +61,7 @@ class App {
     this.app.use(cookieParser());
   }
 
-  private initializeRoutes(routes: Routes[]) {
+  public initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
       this.app.use('/', route.router);
     });

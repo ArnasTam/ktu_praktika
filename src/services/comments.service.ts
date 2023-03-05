@@ -6,7 +6,6 @@ import { HttpException } from '@exceptions/HttpException';
 import { Comment } from '@interfaces/comment.interface';
 import { Post } from '@interfaces/post.interface';
 import { User } from '@interfaces/users.interface';
-import { logger } from '@utils/logger';
 import { isEmpty } from '@utils/util';
 
 class CommentsService {

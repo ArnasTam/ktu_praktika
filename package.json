@@ -1,9 +1,5 @@
 {
-  "name": "typescript-express-starter",
-  "version": "0.0.0",
-  "description": "TypeScript + TypeORM + PostgreSQL + Express API Server",
-  "author": "",
-  "license": "ISC",
+  "name": "ktu_praktika",
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon",
