@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsInt, IsOptional, IsString, ValidateIf } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()

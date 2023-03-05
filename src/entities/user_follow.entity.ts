@@ -1,6 +1,6 @@
 import { UserEntity } from '@entities/users.entity';
 import { UserFollow } from '@interfaces/user_follow.interface';
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '@interfaces/users.interface';
 
 @Entity()

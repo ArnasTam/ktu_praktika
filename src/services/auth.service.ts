@@ -4,7 +4,6 @@ import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
-import { logger } from '@utils/logger';
 import { isEmpty } from '@utils/util';
 import { compare, hash } from 'bcrypt';
 import { sign, verify } from 'jsonwebtoken';
@@ -19,8 +18,7 @@ class AuthService extends Repository<UserEntity> {
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
-    return createUserData;
+    return await UserEntity.create({ ...userData, password: hashedPassword }).save();
   }
 
   public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {

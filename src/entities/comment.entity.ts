@@ -3,7 +3,7 @@ import { UserEntity } from '@entities/users.entity';
 import { Comment } from '@interfaces/comment.interface';
 import { Post } from '@interfaces/post.interface';
 import { IsNotEmpty } from 'class-validator';
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, Unique, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '@interfaces/users.interface';
 
 @Entity()

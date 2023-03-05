@@ -2,7 +2,6 @@ import { UserFollow } from '@interfaces/user_follow.interface';
 import AuthService from '@services/auth.service';
 import UserFollowsService from '@services/user_follow.service';
 import { NextFunction, Request, Response } from 'express';
-import { User } from '@interfaces/users.interface';
 
 class UserFollowsController {
   public followsService = new UserFollowsService();

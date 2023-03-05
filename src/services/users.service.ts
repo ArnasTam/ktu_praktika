@@ -1,13 +1,10 @@
-import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
-import authMiddleware from '@middlewares/auth.middleware';
-import { logger } from '@utils/logger';
 import { isEmpty } from '@utils/util';
 import { hash } from 'bcrypt';
-import { EntityRepository, getConnection, getRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 
 @EntityRepository()
 class UserService extends Repository<UserEntity> {

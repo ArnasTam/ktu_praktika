@@ -1,7 +1,5 @@
 import { UserFollow } from '@interfaces/user_follow.interface';
-import AuthService from '@services/auth.service';
 import UserFollowsService from '@services/user_follow.service';
-import usersService from '@services/users.service';
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
