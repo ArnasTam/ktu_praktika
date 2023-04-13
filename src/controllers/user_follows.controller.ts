@@ -1,4 +1,3 @@
-import { UserFollow } from '@interfaces/user_follow.interface';
 import AuthService from '@services/auth.service';
 import UserFollowsService from '@services/user_follow.service';
 import { NextFunction, Request, Response } from 'express';
@@ -9,13 +8,12 @@ class UserFollowsController {
 
   public unfollowUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const followerId = (await this.authService.getClaims(Authorization)).id;
+      const userId = String(req.params.id);
+      const followerId = (await this.authService.getClaims(req)).tokenSubject;
 
-      const unfollowData: UserFollow = await this.followsService.deleteFollow(userId, followerId);
+      await this.followsService.deleteFollow(userId, followerId);
 
-      res.status(200).json({ data: unfollowData, message: 'unfollowed' });
+      res.status(200).json({ message: 'unfollowed' });
     } catch (error) {
       next(error);
     }
@@ -23,13 +21,12 @@ class UserFollowsController {
 
   public followUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const followerId = (await this.authService.getClaims(Authorization)).id;
+      const userId = String(req.params.id);
+      const followerId = (await this.authService.getClaims(req)).tokenSubject;
 
-      const follow: UserFollow = await this.followsService.createFollow(userId, followerId);
+      await this.followsService.createFollow(userId, followerId);
 
-      res.status(200).json({ data: follow, message: 'followed' });
+      res.status(200).json({ message: 'followed' });
     } catch (error) {
       next(error);
     }

@@ -19,7 +19,7 @@ export class CommentEntity extends BaseEntity implements Comment {
   @JoinColumn()
   author: User;
 
-  @ManyToOne(_ => PostEntity)
+  @ManyToOne(_ => PostEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
   post: Post;
 

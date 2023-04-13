@@ -1,5 +1,4 @@
-import { CreateCommentDto, UpdateCommentDto } from '@dtos/comments.dto';
-import { Comment } from '@interfaces/comment.interface';
+import { CommentDto, CreateCommentDto, UpdateCommentDto } from '@dtos/comments.dto';
 import AuthService from '@services/auth.service';
 import CommentsService from '@services/comments.service';
 import { NextFunction, Request, Response } from 'express';
@@ -8,9 +7,10 @@ class CommentsController {
   public commentsService = new CommentsService();
   public authService = new AuthService();
 
-  public getComments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public getCommentsByPostId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllComments: Comment[] = await this.commentsService.findAllComments();
+      const postId = Number(req.query.postId);
+      const findAllComments: CommentDto[] = await this.commentsService.findAllCommentsByPostId(postId);
 
       res.status(200).json({ data: findAllComments, message: 'findAll' });
     } catch (error) {
@@ -21,7 +21,7 @@ class CommentsController {
   public getCommentById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const commentId = Number(req.params.id);
-      const findComment: Comment = await this.commentsService.findCommentById(commentId);
+      const findComment: CommentDto = await this.commentsService.findCommentById(commentId);
 
       res.status(200).json({ data: findComment, message: 'findOne' });
     } catch (error) {
@@ -32,10 +32,9 @@ class CommentsController {
   public createComment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const commentData: CreateCommentDto = req.body;
-      const cookie = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(cookie)).id;
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
 
-      const createCommentData: Comment = await this.commentsService.createComment(commentData, userId);
+      const createCommentData: CommentDto = await this.commentsService.createComment(commentData, userId);
 
       res.status(201).json({ data: createCommentData, message: 'created' });
     } catch (error) {
@@ -47,10 +46,8 @@ class CommentsController {
     try {
       const commentId = Number(req.params.id);
       const commentData: UpdateCommentDto = req.body;
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(Authorization)).id;
-
-      const updateCommentData: Comment = await this.commentsService.updateComment(commentId, userId, commentData);
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
+      const updateCommentData: CommentDto = await this.commentsService.updateComment(commentId, userId, commentData);
 
       res.status(200).json({ data: updateCommentData, message: 'updated' });
     } catch (error) {
@@ -61,10 +58,9 @@ class CommentsController {
   public deleteComment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const commentId = Number(req.params.id);
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(Authorization)).id;
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
 
-      const deleteCommentData: Comment = await this.commentsService.deleteComment(commentId, userId);
+      const deleteCommentData: CommentDto = await this.commentsService.deleteComment(commentId, userId);
 
       res.status(200).json({ data: deleteCommentData, message: 'deleted' });
     } catch (error) {

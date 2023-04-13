@@ -4,6 +4,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import * as http from 'http';
 import morgan from 'morgan';
 import compression from 'compression';
 import swaggerUi from 'swagger-ui-express';
@@ -20,6 +21,7 @@ class App {
   public app: express.Application;
   public env: string;
   public port: string | number;
+  private server: http.Server;
 
   async init() {
     this.app = express();
@@ -35,7 +37,7 @@ class App {
   }
 
   public listen() {
-    this.app.listen(this.port, () => {
+    this.server = this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 App listening on the port ${this.port}`);
@@ -44,7 +46,7 @@ class App {
   }
 
   public getServer() {
-    return this.app;
+    return this.server;
   }
 
   private async connectToDatabase() {

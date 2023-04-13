@@ -1,4 +1,5 @@
-import { CreateCommentDto, UpdateCommentDto } from '@dtos/comments.dto';
+import { mapToCommentDto } from '@/mappers/comment.mapper';
+import { CommentDto, CreateCommentDto, UpdateCommentDto } from '@dtos/comments.dto';
 import { CommentEntity } from '@entities/comment.entity';
 import { PostEntity } from '@entities/post.entity';
 import { UserEntity } from '@entities/users.entity';
@@ -9,20 +10,21 @@ import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 
 class CommentsService {
-  public async findAllComments(): Promise<Comment[]> {
-    return await CommentEntity.find();
+  public async findAllCommentsByPostId(postId: number): Promise<CommentDto[]> {
+    const comments = await CommentEntity.find({ where: { post: { id: postId } }, relations: ['author'] });
+    return comments.map(comment => mapToCommentDto(comment));
   }
 
-  public async findCommentById(commentId: number): Promise<Comment> {
+  public async findCommentById(commentId: number): Promise<CommentDto> {
     if (isEmpty(commentId)) throw new HttpException(400, 'CommentId is empty');
 
     const findComment: Comment = await CommentEntity.findOne({ where: { id: commentId } });
     if (!findComment) throw new HttpException(409, "Comment doesn't exist");
 
-    return findComment;
+    return mapToCommentDto(findComment);
   }
 
-  public async createComment(commentData: CreateCommentDto, authorId: number): Promise<Comment> {
+  public async createComment(commentData: CreateCommentDto, authorId: string): Promise<CommentDto> {
     if (isEmpty(commentData)) throw new HttpException(400, 'commentData is empty');
     if (isEmpty(authorId)) throw new HttpException(400, 'authorId is empty');
 
@@ -32,10 +34,10 @@ class CommentsService {
     const findUser: User = await UserEntity.findOne({ where: { id: authorId } });
     if (!findUser) throw new HttpException(404, `A user with the specified authorId does not exist`);
 
-    return await CommentEntity.create({ ...commentData, author: findUser, post: findPost }).save();
+    return mapToCommentDto(await CommentEntity.create({ ...commentData, author: findUser, post: findPost }).save());
   }
 
-  public async updateComment(commentId: number, callerId: number, commentData: UpdateCommentDto): Promise<Comment> {
+  public async updateComment(commentId: number, callerId: string, commentData: UpdateCommentDto): Promise<CommentDto> {
     if (isEmpty(commentData)) throw new HttpException(400, 'commentData is empty');
 
     const findComment: Comment = await CommentEntity.findOne({ where: { id: commentId }, relations: ['author'] });
@@ -46,10 +48,10 @@ class CommentsService {
 
     await CommentEntity.update(commentId, { ...commentData });
 
-    return await CommentEntity.findOne({ where: { id: commentId } });
+    return mapToCommentDto(await CommentEntity.findOne({ where: { id: commentId } }));
   }
 
-  public async deleteComment(commentId: number, callerId: number): Promise<Comment> {
+  public async deleteComment(commentId: number, callerId: string): Promise<CommentDto> {
     if (isEmpty(commentId)) throw new HttpException(400, 'commentId is empty');
 
     const findComment: Comment = await CommentEntity.findOne({ where: { id: commentId }, relations: ['author'] });
@@ -58,7 +60,7 @@ class CommentsService {
     if (findComment.author.id !== callerId) throw new HttpException(403, 'No permission to delete this comment');
 
     await CommentEntity.delete({ id: commentId });
-    return findComment;
+    return mapToCommentDto(findComment);
   }
 }
 
