@@ -1,10 +1,7 @@
-import { UserFollow } from '@interfaces/user_follow.interface';
-import AuthService from '@services/auth.service';
+import { UserFollowDto } from '@dtos/user_follow.dto';
 import UserFollowsService from '@services/user_follow.service';
-import usersService from '@services/users.service';
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
+import { CreateUserDto, UserDto } from '@dtos/users.dto';
 import UserService from '@services/users.service';
 
 class UsersController {
@@ -13,7 +10,7 @@ class UsersController {
 
   public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
+      const findAllUsersData: UserDto[] = await this.userService.findAllUser();
 
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
@@ -24,7 +21,7 @@ class UsersController {
   public getUserById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);
-      const findOneUserData: User = await this.userService.findUserById(userId);
+      const findOneUserData: UserDto = await this.userService.findUserById(userId);
 
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
@@ -34,9 +31,9 @@ class UsersController {
 
   public getFollowers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const followsData: UserFollow[] = await this.followsService.getAllFollowers(userId);
-      const followers: User[] = followsData.map(follow => follow.follower);
+      const userId = String(req.params.id);
+      const followsData: UserFollowDto[] = await this.followsService.getAllFollowers(userId);
+      const followers: UserDto[] = followsData.map(follow => follow.follower);
 
       res.status(200).json({ data: followers, message: 'getFollowers' });
     } catch (error) {
@@ -46,9 +43,9 @@ class UsersController {
 
   public getFollowedUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const followsData: UserFollow[] = await this.followsService.getAllFollowedUsers(userId);
-      const followers: User[] = followsData.map(follow => follow.followedUser);
+      const userId = String(req.params.id);
+      const followsData: UserFollowDto[] = await this.followsService.getAllFollowedUsers(userId);
+      const followers: UserDto[] = followsData.map(follow => follow.followedUser);
 
       res.status(200).json({ data: followers, message: 'getFollowedUsers' });
     } catch (error) {
@@ -56,12 +53,12 @@ class UsersController {
     }
   };
 
-  public createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public createIfNotExists = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
-      const createUserData: User = await this.userService.createUser(userData);
+      const createUserData: UserDto = await this.userService.createIfNotExists(userData);
 
-      res.status(201).json({ data: createUserData, message: 'created' });
+      res.status(201).json({ ...createUserData });
     } catch (error) {
       next(error);
     }
@@ -69,9 +66,9 @@ class UsersController {
 
   public updateUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
+      const userId = String(req.params.id);
       const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.userService.updateUser(userId, userData);
+      const updateUserData: UserDto = await this.userService.updateUser(userId, userData);
 
       res.status(200).json({ data: updateUserData, message: 'updated' });
     } catch (error) {
@@ -81,8 +78,8 @@ class UsersController {
 
   public deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const deleteUserData: User = await this.userService.deleteUser(userId);
+      const userId = String(req.params.id);
+      const deleteUserData: UserDto = await this.userService.deleteUser(userId);
 
       res.status(200).json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {

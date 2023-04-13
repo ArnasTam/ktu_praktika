@@ -1,63 +1,54 @@
-import { dbConnection } from '@databases';
-import { CreateUserDto } from '@dtos/users.dto';
+import { mapToUserDto } from '@/mappers/user.mapper';
+import { CreateUserDto, UserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
-import authMiddleware from '@middlewares/auth.middleware';
-import { logger } from '@utils/logger';
 import { isEmpty } from '@utils/util';
-import { hash } from 'bcrypt';
-import { EntityRepository, getConnection, getRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 
 @EntityRepository()
 class UserService extends Repository<UserEntity> {
-  public async findAllUser(): Promise<User[]> {
-    return await UserEntity.find();
+  public async findAllUser(): Promise<UserDto[]> {
+    return (await UserEntity.find()).map(user => mapToUserDto(user));
   }
 
-  public async findUserById(userId: number): Promise<User> {
+  public async findUserById(userId: number): Promise<UserDto> {
     if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
-    return findUser;
+    return mapToUserDto(findUser);
   }
 
-  public async createUser(userData: CreateUserDto): Promise<User> {
+  public async createIfNotExists(userData: CreateUserDto): Promise<UserDto> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
-    const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
+    const findUser: User = await UserEntity.findOne({ where: { id: userData.id } });
+    if (findUser) return mapToUserDto(findUser);
 
-    const findUserName: User = await UserEntity.findOne({ where: { userName: userData.userName } });
-    if (findUserName) throw new HttpException(409, `This userName ${userData.userName} already exists`);
-
-    const hashedPassword = await hash(userData.password, 10);
-
-    return await UserEntity.create({ ...userData, password: hashedPassword }).save();
+    return mapToUserDto(await UserEntity.create({ ...userData }).save());
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
+  public async updateUser(userId: string, userData: CreateUserDto): Promise<UserDto> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
-    const hashedPassword = await hash(userData.password, 10);
-    await UserEntity.update(userId, { ...userData, password: hashedPassword });
+    await UserEntity.update(userId, { ...userData, id: userId });
 
-    return await UserEntity.findOne({ where: { id: userId } });
+    return mapToUserDto(await UserEntity.findOne({ where: { id: userId } }));
   }
 
-  public async deleteUser(userId: number): Promise<User> {
+  public async deleteUser(userId: string): Promise<UserDto> {
     if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
     await UserEntity.delete({ id: userId });
-    return findUser;
+    return mapToUserDto(findUser);
   }
 }
 

@@ -1,6 +1,5 @@
-import { CreatePostDto, GetFilteredPostsDto } from '@dtos/post.dto';
-import { Comment } from '@interfaces/comment.interface';
-import { Post } from '@interfaces/post.interface';
+import { CommentDto } from '@dtos/comments.dto';
+import { CreatePostDto, PostDto } from '@dtos/post.dto';
 import AuthService from '@services/auth.service';
 import PostService from '@services/post.service';
 import { NextFunction, Request, Response } from 'express';
@@ -11,9 +10,7 @@ class PostController {
 
   public getPosts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const filterData: GetFilteredPostsDto = req.body;
-
-      const findAllPosts: Post[] = await this.postService.findFilteredPosts(filterData);
+      const findAllPosts: PostDto[] = await this.postService.findAllPosts();
 
       res.status(200).json({ data: findAllPosts, message: 'findAll' });
     } catch (error) {
@@ -24,7 +21,7 @@ class PostController {
   public getPostById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const postId = Number(req.params.id);
-      const findPost: Post = await this.postService.findPostById(postId);
+      const findPost: PostDto = await this.postService.findPostById(postId);
 
       res.status(200).json({ data: findPost, message: 'findOne' });
     } catch (error) {
@@ -35,7 +32,7 @@ class PostController {
   public getComments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const postId = Number(req.params.id);
-      const findComments: Comment[] = await this.postService.findAllPostComments(postId);
+      const findComments: CommentDto[] = await this.postService.findAllPostComments(postId);
 
       res.status(200).json({ data: findComments, message: 'findOne' });
     } catch (error) {
@@ -46,9 +43,8 @@ class PostController {
   public createPost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const postData: CreatePostDto = req.body;
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(Authorization)).id;
-      const createPostData: Post = await this.postService.createPost(postData, userId);
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
+      const createPostData: PostDto = await this.postService.createPost(postData, userId);
 
       res.status(201).json({ data: createPostData, message: 'created' });
     } catch (error) {
@@ -60,9 +56,8 @@ class PostController {
     try {
       const postId = Number(req.params.id);
       const postData: CreatePostDto = req.body;
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(Authorization)).id;
-      const updatePostData: Post = await this.postService.updatePost(postId, userId, postData);
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
+      const updatePostData: PostDto = await this.postService.updatePost(postId, userId, postData);
 
       res.status(200).json({ data: updatePostData, message: 'updated' });
     } catch (error) {
@@ -73,9 +68,8 @@ class PostController {
   public deletePost = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const postId = Number(req.params.id);
-      const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
-      const userId = (await this.authService.getClaims(Authorization)).id;
-      const deletePostData: Post = await this.postService.deletePost(postId, userId);
+      const userId = (await this.authService.getClaims(req)).tokenSubject;
+      const deletePostData: PostDto = await this.postService.deletePost(postId, userId);
 
       res.status(200).json({ data: deletePostData, message: 'deleted' });
     } catch (error) {

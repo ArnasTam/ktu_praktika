@@ -13,8 +13,8 @@ class UserFollowsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post(`${this.path}/:id(\\d+)`, authMiddleware, this.followsController.followUser);
-    this.router.delete(`${this.path}/:id(\\d+)`, authMiddleware, this.followsController.unfollowUser);
+    this.router.post(`${this.path}/:id`, authMiddleware, this.followsController.followUser);
+    this.router.delete(`${this.path}/:id`, authMiddleware, this.followsController.unfollowUser);
   }
 }
 
