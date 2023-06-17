@@ -1,5 +1,5 @@
 # Common build stage
-FROM node:18.15-bullseye-slim as common-build-stage
+FROM node:18-bullseye-slim as common-build-stage
 
 COPY . ./app
 
